@@ -2,6 +2,7 @@
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
+var webserver = require('gulp-webserver');
 plugins.source = require('vinyl-source-stream');
 plugins.browserify = require('browserify');
 plugins.watchify = require('watchify');
@@ -20,7 +21,18 @@ gulp.task('scripts:full', require('./gulp/scripts-full')(gulp, plugins));
 gulp.task('scripts:complete', require('./gulp/scripts-complete')(gulp, plugins));
 gulp.task('scripts', ['scripts:basic', 'scripts:complete', 'scripts:full']);
 gulp.task('build', function(cb) {
-  plugins.runSeq(['clean'], 'scripts', 'styles', cb)
+  plugins.runSeq(['clean'], 'scripts', 'styles', cb);
 });
-gulp.task('watch', require('./gulp/watch')(gulp, plugins));
+//gulp.task('watch', require('./gulp/watch')(gulp, plugins));
+gulp.task('watch', function() {
+  return gulp.watch(['./src/**/*','./css/*','./index.html'], ['build']);
+});
+gulp.task('webserver', ['build', 'watch'], function() {
+  gulp.src('.')
+    .pipe(webserver({
+      livereload: false,
+      directoryListing: true,
+      open: 'http://localhost:8000/index.html'
+    }));
+});
 gulp.task('default', ['build', 'watch']);
